@@ -1,12 +1,14 @@
 const puppeteer = require(`puppeteer`)
 const express = require(`express`)
 const app = express()
-const port = 3000
+const port = 80
 
 app.get(`/`, async (req, res) => {
-    if (!req.query.id) res.send(`ID not found`)
-    try {
-        const browser = await puppeteer.launch()
+    if (!req.query.id) res.send(`What you see?`)
+    else try {
+        const browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        })
         const [page] = await browser.pages()
 
         await page.setRequestInterception(true);
@@ -23,9 +25,10 @@ app.get(`/`, async (req, res) => {
             return document.querySelector(`.game-wrap .tab-nav-box .new-y-box .user-head .name, .pop-mode-box .pop-mode .new-y-box .user-head .name`).innerHTML
         })
 
-        res.send(result)
+        res.send(JSON.stringify({name: result}))
     } catch (e) {
-        res.send(e)
+        console.error(e)
+        res.send(JSON.stringify(e))
     }
 })
 
